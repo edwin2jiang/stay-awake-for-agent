@@ -19,7 +19,7 @@ enum SessionMode: String, CaseIterable, Identifiable {
 }
 
 @MainActor
-final class StayAwakeStore: ObservableObject {
+final class AgentDutyStore: ObservableObject {
     @Published var sessionMode: SessionMode
     @Published var durationMinutes: Int
     @Published var experimentalLidCloseMode: Bool
@@ -29,9 +29,12 @@ final class StayAwakeStore: ObservableObject {
     @Published private(set) var subtitleText = "系统允许正常休眠"
     @Published private(set) var lastError: String?
     @Published private(set) var lidCloseStatusText = "未请求"
+    @Published private(set) var launchAtLoginEnabled = false
+    @Published private(set) var launchAtLoginStatusText = "未启用"
 
     private let defaults: UserDefaults
     private let lidCloseController = LidCloseController()
+    private let launchAtLoginController: LaunchAtLoginController?
 
     private var assertionID: IOPMAssertionID = 0
     private var countdownTimer: Timer?
@@ -45,6 +48,12 @@ final class StayAwakeStore: ObservableObject {
         let savedMinutes = defaults.integer(forKey: DefaultsKey.durationMinutes)
         self.durationMinutes = savedMinutes == 0 ? 60 : min(max(savedMinutes, 5), 720)
         self.experimentalLidCloseMode = defaults.bool(forKey: DefaultsKey.experimentalLidCloseMode)
+        if #available(macOS 13.0, *) {
+            self.launchAtLoginController = LaunchAtLoginController()
+        } else {
+            self.launchAtLoginController = nil
+        }
+        refreshLaunchAtLoginStatus()
     }
 
     var toggleBinding: Binding<Bool> {
@@ -65,7 +74,7 @@ final class StayAwakeStore: ObservableObject {
             return countdownText
         }
 
-        return "StayAwake"
+        return AppIdentity.menuBarName
     }
 
     func persistMode() {
@@ -84,6 +93,35 @@ final class StayAwakeStore: ObservableObject {
 
     func persistLidClosePreference() {
         defaults.set(experimentalLidCloseMode, forKey: DefaultsKey.experimentalLidCloseMode)
+    }
+
+    func setLaunchAtLogin(_ enabled: Bool) {
+        if enabled == launchAtLoginEnabled {
+            return
+        }
+
+        guard let launchAtLoginController else {
+            lastError = "当前系统不支持开机自启开关。"
+            refreshLaunchAtLoginStatus()
+            return
+        }
+
+        do {
+            try launchAtLoginController.setEnabled(enabled)
+            lastError = nil
+            refreshLaunchAtLoginStatus()
+
+            if launchAtLoginController.status == .requiresApproval {
+                launchAtLoginStatusText = "等待系统批准"
+            }
+        } catch {
+            refreshLaunchAtLoginStatus()
+            lastError = "开机自启设置失败：\(error.localizedDescription)"
+        }
+    }
+
+    func openLoginItemsSettings() {
+        launchAtLoginController?.openSystemSettings()
     }
 
     func startSession() {
@@ -231,6 +269,30 @@ final class StayAwakeStore: ObservableObject {
                     }
                 }
             }
+        }
+    }
+
+    private func refreshLaunchAtLoginStatus() {
+        guard let launchAtLoginController else {
+            launchAtLoginEnabled = false
+            launchAtLoginStatusText = "当前系统不可用"
+            return
+        }
+
+        let status = launchAtLoginController.status
+        launchAtLoginEnabled = launchAtLoginController.isEnabled
+
+        switch status {
+        case .enabled:
+            launchAtLoginStatusText = "已启用"
+        case .requiresApproval:
+            launchAtLoginStatusText = "等待系统批准"
+        case .notFound:
+            launchAtLoginStatusText = "仅在打包后的 .app 中可用"
+        case .notRegistered:
+            launchAtLoginStatusText = "未启用"
+        @unknown default:
+            launchAtLoginStatusText = "状态未知"
         }
     }
 }

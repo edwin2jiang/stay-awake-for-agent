@@ -1,6 +1,6 @@
-# StayAwake
+# Agent Duty
 
-一个轻量的 macOS 菜单栏防休眠工具，使用 Swift 编写，目标是尽快提供可直接打包使用的 `.app`。
+一个轻量的 macOS 菜单栏防休眠工具，专门为 Loom 等 Agent 工作流准备，让电脑在长任务期间保持在线。
 
 ## 已实现
 
@@ -8,7 +8,9 @@
 - 定时模式
 - 实时倒计时
 - 无限模式
+- 开机自启
 - 实验性盒盖模式开关
+- 正式应用图标与 `.icns` 打包资源
 
 ## 技术方案
 
@@ -52,19 +54,22 @@
 
 ```bash
 swift build
+./Scripts/build-icon.sh
 ./Scripts/build-app.sh
 ```
 
 构建完成后，应用位于：
 
 ```bash
-./dist/StayAwake.app
+./dist/AgentDuty.app
 ```
 
 ## 运行
 
 ```bash
-open ./dist/StayAwake.app
+open ./dist/AgentDuty.app
 ```
 
 首次启用“实验性盒盖模式”时，系统会弹出管理员授权。
+
+首次启用“开机自启”时，如果系统要求批准，可点击应用内的“打开登录项设置”完成授权。

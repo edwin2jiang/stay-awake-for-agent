@@ -1,12 +1,12 @@
 import SwiftUI
 
 @main
-struct StayAwakeApp: App {
-    @StateObject private var store = StayAwakeStore()
+struct AgentDutyApp: App {
+    @StateObject private var store = AgentDutyStore()
 
     var body: some Scene {
         MenuBarExtra {
-            StayAwakePanel(store: store)
+            AgentDutyPanel(store: store)
         } label: {
             Label(store.menuBarTitle, systemImage: store.isActive ? "bolt.fill" : "bolt.slash")
         }
@@ -14,8 +14,8 @@ struct StayAwakeApp: App {
     }
 }
 
-private struct StayAwakePanel: View {
-    @ObservedObject var store: StayAwakeStore
+private struct AgentDutyPanel: View {
+    @ObservedObject var store: AgentDutyStore
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -28,6 +28,7 @@ private struct StayAwakePanel: View {
             }
 
             countdownCard
+            launchAtLoginControl
             lidCloseControl
 
             if let lastError = store.lastError {
@@ -38,15 +39,15 @@ private struct StayAwakePanel: View {
             }
         }
         .padding(16)
-        .frame(width: 340)
+        .frame(width: 360)
     }
 
     private var header: some View {
         HStack(alignment: .firstTextBaseline) {
             VStack(alignment: .leading, spacing: 4) {
-                Text("StayAwake")
+                Text(AppIdentity.productName)
                     .font(.title3.weight(.semibold))
-                Text(store.isActive ? "防休眠已开启" : "系统可正常休眠")
+                Text(store.isActive ? "让 Agent 持续在线工作" : "待命中，允许系统正常休眠")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
@@ -149,6 +150,44 @@ private struct StayAwakePanel: View {
                 RoundedRectangle(cornerRadius: 8, style: .continuous)
                     .fill(Color.accentColor.opacity(0.08))
             )
+        }
+    }
+
+    private var launchAtLoginControl: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Toggle(isOn: Binding(
+                get: { store.launchAtLoginEnabled },
+                set: { newValue in
+                    store.setLaunchAtLogin(newValue)
+                })
+            ) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("开机自启")
+                        .font(.headline)
+                    Text("登录 macOS 后自动启动，适合长期跑 Agent 任务")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .toggleStyle(.switch)
+
+            HStack {
+                Text("登录项状态")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(store.launchAtLoginStatusText)
+                    .font(.caption.monospacedDigit())
+                    .foregroundStyle(.secondary)
+            }
+
+            if store.launchAtLoginStatusText == "等待系统批准" || store.launchAtLoginStatusText == "仅在打包后的 .app 中可用" {
+                Button("打开登录项设置") {
+                    store.openLoginItemsSettings()
+                }
+                .buttonStyle(.link)
+                .font(.caption)
+            }
         }
     }
 

@@ -5,15 +5,17 @@
     <key>CFBundleDevelopmentRegion</key>
     <string>en</string>
     <key>CFBundleDisplayName</key>
-    <string>StayAwake</string>
+    <string>Agent Duty</string>
     <key>CFBundleExecutable</key>
-    <string>StayAwake</string>
+    <string>AgentDuty</string>
+    <key>CFBundleIconFile</key>
+    <string>AppIcon</string>
     <key>CFBundleIdentifier</key>
-    <string>com.edwin.stayawake</string>
+    <string>com.edwin.agentduty</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>
-    <string>StayAwake</string>
+    <string>AgentDuty</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
