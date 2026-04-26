@@ -27,3 +27,22 @@ func formatMinutes(_ minutes: Int) -> String {
 
     return "\(minutes) 分钟"
 }
+
+func formatDeadline(_ date: Date) -> String {
+    let calendar = Calendar.current
+    let formatter = DateFormatter()
+    formatter.locale = Locale(identifier: "zh_CN")
+
+    if calendar.isDateInToday(date) {
+        formatter.dateFormat = "今天 HH:mm"
+        return formatter.string(from: date)
+    }
+
+    if calendar.isDateInTomorrow(date) {
+        formatter.dateFormat = "明天 HH:mm"
+        return formatter.string(from: date)
+    }
+
+    formatter.dateFormat = "M月d日 HH:mm"
+    return formatter.string(from: date)
+}

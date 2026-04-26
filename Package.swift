@@ -2,19 +2,19 @@
 import PackageDescription
 
 let package = Package(
-    name: "AgentDuty",
+    name: "StayAwakeForAgent",
     platforms: [
         .macOS(.v13),
     ],
     products: [
         .executable(
-            name: "AgentDuty",
-            targets: ["AgentDuty"]
+            name: "StayAwakeForAgent",
+            targets: ["StayAwakeForAgent"]
         ),
     ],
     targets: [
         .executableTarget(
-            name: "AgentDuty",
+            name: "StayAwakeForAgent",
             path: "Sources"),
     ]
 )
