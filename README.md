@@ -82,6 +82,26 @@ swift build
 open "./dist/Stay Awake for Agent.app"
 ```
 
+## 推荐开发启动方式
+
+如果你在频繁改代码，推荐直接用下面这个脚本：
+
+```bash
+./Scripts/restart-app.sh
+```
+
+它会先结束旧的 `Stay Awake for Agent` 进程，再重新构建并启动最新版本，避免桌面里同时挂着多份旧实例。
+
 首次启用“实验性盒盖模式”时，系统会弹出管理员授权。
 
 首次启用“开机自启”时，如果系统要求批准，可点击应用内的“打开登录项设置”完成授权。
+
+
+## 如果你这台机器现在已经处于“被卡在不睡眠”的状态，临时也可以手动执行：
+```
+sudo pmset -a disablesleep 0
+```
+
+## License
+
+MIT
