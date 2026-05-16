@@ -1,22 +1,26 @@
-# Stay Awake for Agent
+# Stay Awake for Agent - macOS No Sleep Utility for AI Agents
 
 [English](README.md) | [中文](README.zh-CN.md)
 
-Stay Awake for Agent is a small macOS menu bar app for long-running agent workflows. It keeps your Mac awake while automation, uploads, recordings, or remote jobs are still running, with clear controls for duration, battery protection, launch at login, and an experimental lid-close mode.
+Stay Awake for Agent is a macOS no-sleep utility for long-running AI agent workflows. It works like a focused, menu bar friendly `caffeinate` or NoSleep app: keep your Mac awake while coding agents, browser automation, uploads, recordings, remote jobs, Loom workflows, or overnight tasks are still running.
 
-The default stay-awake behavior uses Apple's public IOKit power assertion API. The lid-close behavior is marked experimental because macOS does not provide a stable public API for preventing sleep caused by closing a laptop lid.
+Use it when ChatGPT, Codex, Claude Code, Cursor, Devin-style agents, Playwright jobs, CI helpers, or any long task needs your Mac to stay awake instead of sleeping halfway through the run.
+
+The default stay-awake behavior uses Apple's public IOKit power assertion API. The experimental lid-close mode is available for advanced users because macOS does not provide a stable public API for preventing sleep caused by closing a laptop lid.
+
+**Keywords:** macOS stay awake, Mac no sleep, prevent Mac sleep, caffeinate GUI, NoSleep for Mac, AI agent utility, coding agent helper, long-running automation, lid close sleep.
 
 ## Features
 
-- Menu bar and regular window controls
-- Infinite mode by default
+- Menu bar and regular window controls for macOS
+- Infinite no-sleep mode by default
 - Presets: 15 minutes, 30 minutes, 1 hour, 2 hours, 3 hours, 6 hours
 - Custom duration in minutes or hours
 - Deadline mode for a specific date and time
 - Live countdown
 - Low-battery protection with a configurable threshold
 - Launch at login
-- Experimental lid-close mode
+- Experimental MacBook lid-close no-sleep mode
 - App icon and bundled release packaging scripts
 
 ## Download

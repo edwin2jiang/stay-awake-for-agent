@@ -1,22 +1,26 @@
-# Stay Awake for Agent
+# Stay Awake for Agent - 面向 AI Agent 的 macOS 防休眠工具
 
 [English](README.md) | [中文](README.zh-CN.md)
 
-Stay Awake for Agent 是一个为长时间 Agent 工作流准备的 macOS 菜单栏工具。它可以在自动化任务、上传、录屏、远程处理或长时间生成任务期间保持 Mac 唤醒，并提供时间计划、低电量保护、开机自启和实验性盒盖模式。
+Stay Awake for Agent 是一个面向长时间 AI Agent 工作流的 macOS 防休眠工具。它可以理解成更适合 Agent 场景的菜单栏版 `caffeinate` / NoSleep：当 coding agent、浏览器自动化、上传、录屏、远程处理、Loom 工作流或通宵任务还在运行时，保持 Mac 不睡眠。
 
-默认防休眠能力使用 Apple 公开的 IOKit 电源断言 API。盒盖模式被标记为实验性，因为 macOS 没有提供稳定公开的 API 来阻止“合盖触发的睡眠”。
+适合 ChatGPT、Codex、Claude Code、Cursor、Devin 类 Agent、Playwright 任务、CI 辅助脚本或任何不能半路睡掉的长任务。
+
+默认防休眠能力使用 Apple 公开的 IOKit 电源断言 API。实验性盒盖模式面向高级用户，因为 macOS 没有提供稳定公开的 API 来阻止“合盖触发的睡眠”。
+
+**关键词：** macOS 防休眠、Mac 不睡眠、阻止 Mac 睡眠、caffeinate 图形界面、NoSleep for Mac、AI Agent 工具、coding agent 辅助、长时间自动化、合盖不睡眠。
 
 ## 功能
 
-- 常规窗口和菜单栏快速入口
-- 默认使用无限模式
+- macOS 常规窗口和菜单栏快速入口
+- 默认使用无限防休眠模式
 - 常用时长：15 分钟、30 分钟、1 小时、2 小时、3 小时、6 小时
 - 自定义分钟或小时
 - 截止日期模式
 - 实时倒计时
 - 低电量保护，可配置阈值
 - 开机自启
-- 实验性盒盖模式
+- 实验性 MacBook 合盖防休眠模式
 - 应用图标和发布打包脚本
 
 ## 下载
