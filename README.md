@@ -109,9 +109,9 @@ For development, restart the app with:
 ./Scripts/restart-app.sh
 ```
 
-## Create a Release Package
+## Publish a GitHub Release
 
-To build a zip archive for GitHub Releases:
+To test the release package locally:
 
 ```bash
 ./Scripts/package-release.sh
@@ -122,7 +122,7 @@ This creates files under `dist/release/`, including:
 - `Stay-Awake-for-Agent-macOS-<version>.zip`
 - `Stay-Awake-for-Agent-macOS-<version>.zip.sha256`
 
-Upload both files to a GitHub Release. The release notes can use the template in [RELEASE.md](RELEASE.md).
+To publish a real GitHub Release, push a version tag such as `v0.1.0` or run the `Release` workflow manually from GitHub Actions. The workflow creates or updates the GitHub Release, uploads the zip and checksum, and publishes install instructions from [GITHUB_RELEASE.md](GITHUB_RELEASE.md).
 
 ## Technical Notes
 

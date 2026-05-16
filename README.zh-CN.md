@@ -109,9 +109,9 @@ open "./dist/Stay Awake for Agent.app"
 ./Scripts/restart-app.sh
 ```
 
-## 创建发布包
+## 发布 GitHub Release
 
-为 GitHub Releases 构建 zip 包：
+本地测试发布包：
 
 ```bash
 ./Scripts/package-release.sh
@@ -122,7 +122,7 @@ open "./dist/Stay Awake for Agent.app"
 - `Stay-Awake-for-Agent-macOS-<version>.zip`
 - `Stay-Awake-for-Agent-macOS-<version>.zip.sha256`
 
-把这两个文件上传到 GitHub Release。发布说明可以使用 [RELEASE.md](RELEASE.md) 里的模板。
+要发布真正的 GitHub Release，可以推送 `v0.1.0` 这样的版本 tag，或者在 GitHub Actions 页面手动运行 `Release` workflow。workflow 会创建或更新 GitHub Release，上传 zip 和 checksum，并使用 [GITHUB_RELEASE.md](GITHUB_RELEASE.md) 发布用户安装说明。
 
 ## 技术说明
 
