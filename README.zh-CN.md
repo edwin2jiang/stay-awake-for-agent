@@ -24,12 +24,14 @@ Stay Awake for Agent 是一个为长时间 Agent 工作流准备的 macOS 菜单
 普通用户建议直接从 GitHub Releases 下载预构建版本：
 
 1. 打开项目的 **Releases** 页面。
-2. 下载 `Stay-Awake-for-Agent-macOS-<version>.zip`。
-3. 解压文件。
-4. 把 `Stay Awake for Agent.app` 移到 `/Applications`。
+2. 下载 `Stay-Awake-for-Agent-macOS-<version>.dmg`。
+3. 打开 DMG。
+4. 把 `Stay Awake for Agent.app` 拖到 **Applications**。
 5. 第一次从 Finder 打开，让 macOS 显示必要的安全提示。
 
 如果 macOS 提示“无法验证开发者”，进入 **系统设置 > 隐私与安全性**，找到 Stay Awake for Agent 对应的安全提示，然后选择 **仍要打开**。未签名的本地构建出现这个提示是正常现象。
+
+发布包里的 app 是 universal macOS binary，同时兼容 Apple Silicon 和 Intel Mac。
 
 ## 首次使用
 
@@ -119,10 +121,11 @@ open "./dist/Stay Awake for Agent.app"
 
 输出文件位于 `dist/release/`，包括：
 
+- `Stay-Awake-for-Agent-macOS-<version>.dmg`
 - `Stay-Awake-for-Agent-macOS-<version>.zip`
-- `Stay-Awake-for-Agent-macOS-<version>.zip.sha256`
+- `SHA256SUMS.txt`
 
-要发布真正的 GitHub Release，可以推送 `v0.1.0` 这样的版本 tag，或者在 GitHub Actions 页面手动运行 `Release` workflow。workflow 会创建或更新 GitHub Release，上传 zip 和 checksum，并使用 [GITHUB_RELEASE.md](GITHUB_RELEASE.md) 发布用户安装说明。
+要发布真正的 GitHub Release，可以推送 `v0.1.0` 这样的版本 tag，或者在 GitHub Actions 页面手动运行 `Release` workflow。workflow 会创建或更新 GitHub Release，上传 DMG、zip 和 checksum，并使用 [GITHUB_RELEASE.md](GITHUB_RELEASE.md) 发布用户安装说明。
 
 ## 技术说明
 

@@ -2,14 +2,18 @@
 
 ### Download
 
-Download `{{ARCHIVE_NAME}}` from the assets below.
+Download `{{DMG_NAME}}` from the assets below.
+
+The DMG contains a universal macOS app with Apple Silicon and Intel slices.
 
 ### Install
 
-1. Unzip `{{ARCHIVE_NAME}}`.
-2. Move `Stay Awake for Agent.app` to `/Applications`.
+1. Open `{{DMG_NAME}}`.
+2. Drag `Stay Awake for Agent.app` to **Applications**.
 3. Open the app from Finder once.
 4. If macOS blocks the app because it is from an unidentified developer, open **System Settings > Privacy & Security** and choose **Open Anyway** for Stay Awake for Agent.
+
+The zip file is also attached as a fallback for users who prefer archive downloads.
 
 ### Use
 
@@ -33,6 +37,6 @@ sudo pmset -a disablesleep 0
 Compare the checksum file with:
 
 ```bash
-shasum -a 256 "{{ARCHIVE_NAME}}"
-cat "{{ARCHIVE_NAME}}.sha256"
+shasum -a 256 "{{DMG_NAME}}"
+cat SHA256SUMS.txt
 ```

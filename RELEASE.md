@@ -16,9 +16,9 @@ git push origin v0.1.0
 The `Release` workflow will:
 
 - build the app bundle
-- package the zip archive
+- package the universal DMG and fallback zip archive
 - create or update the matching GitHub Release
-- upload the `.zip` and `.sha256` assets
+- upload the `.dmg`, `.zip`, and `SHA256SUMS.txt` assets
 - publish user-facing install instructions from `GITHUB_RELEASE.md`
 
 ### Manually from GitHub Actions
@@ -35,8 +35,9 @@ Before publishing, you can test the package locally:
 
 The release artifacts are written to `dist/release/`:
 
+- `Stay-Awake-for-Agent-macOS-<version>.dmg`
 - `Stay-Awake-for-Agent-macOS-<version>.zip`
-- `Stay-Awake-for-Agent-macOS-<version>.zip.sha256`
+- `SHA256SUMS.txt`
 
 ## Checksum
 
@@ -44,5 +45,5 @@ Verify the download with:
 
 ```bash
 shasum -a 256 "Stay-Awake-for-Agent-macOS-<version>.zip"
-cat "Stay-Awake-for-Agent-macOS-<version>.zip.sha256"
+cat SHA256SUMS.txt
 ```

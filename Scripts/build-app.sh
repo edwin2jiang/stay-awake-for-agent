@@ -6,6 +6,7 @@ ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 PRODUCT_NAME="StayAwakeForAgent"
 APP_BUNDLE_NAME="Stay Awake for Agent"
 CONFIGURATION="${1:-release}"
+BUILD_ARCH="${2:-universal}"
 DIST_DIR="$ROOT_DIR/dist"
 APP_BUNDLE="$DIST_DIR/$APP_BUNDLE_NAME.app"
 ICON_PATH="$ROOT_DIR/Resources/AppIcon.icns"
@@ -21,10 +22,55 @@ if [[ ! -f "$HERO_BANNER_PATH" ]]; then
     python3 "$ROOT_DIR/Scripts/generate-hero-banner.py"
 fi
 
-swift build -c "$CONFIGURATION" --product "$PRODUCT_NAME"
+build_for_triple() {
+    local triple="$1"
+    local scratch_path="$2"
 
-BIN_DIR="$(swift build -c "$CONFIGURATION" --product "$PRODUCT_NAME" --show-bin-path)"
-EXECUTABLE_PATH="$BIN_DIR/$PRODUCT_NAME"
+    swift build \
+        -c "$CONFIGURATION" \
+        --product "$PRODUCT_NAME" \
+        --triple "$triple" \
+        --scratch-path "$scratch_path"
+
+    swift build \
+        -c "$CONFIGURATION" \
+        --product "$PRODUCT_NAME" \
+        --triple "$triple" \
+        --scratch-path "$scratch_path" \
+        --show-bin-path
+}
+
+case "$BUILD_ARCH" in
+    universal)
+        ARM64_BIN_DIR="$(build_for_triple "arm64-apple-macosx13.0" "$ROOT_DIR/.build/arm64-release" | tail -n 1)"
+        X86_64_BIN_DIR="$(build_for_triple "x86_64-apple-macosx13.0" "$ROOT_DIR/.build/x86_64-release" | tail -n 1)"
+        TEMP_EXECUTABLE="$DIST_DIR/$PRODUCT_NAME.universal"
+        mkdir -p "$DIST_DIR"
+        /usr/bin/lipo -create \
+            "$ARM64_BIN_DIR/$PRODUCT_NAME" \
+            "$X86_64_BIN_DIR/$PRODUCT_NAME" \
+            -output "$TEMP_EXECUTABLE"
+        EXECUTABLE_PATH="$TEMP_EXECUTABLE"
+        ;;
+    arm64)
+        ARM64_BIN_DIR="$(build_for_triple "arm64-apple-macosx13.0" "$ROOT_DIR/.build/arm64-release" | tail -n 1)"
+        EXECUTABLE_PATH="$ARM64_BIN_DIR/$PRODUCT_NAME"
+        ;;
+    x86_64)
+        X86_64_BIN_DIR="$(build_for_triple "x86_64-apple-macosx13.0" "$ROOT_DIR/.build/x86_64-release" | tail -n 1)"
+        EXECUTABLE_PATH="$X86_64_BIN_DIR/$PRODUCT_NAME"
+        ;;
+    native)
+        swift build -c "$CONFIGURATION" --product "$PRODUCT_NAME"
+        BIN_DIR="$(swift build -c "$CONFIGURATION" --product "$PRODUCT_NAME" --show-bin-path)"
+        EXECUTABLE_PATH="$BIN_DIR/$PRODUCT_NAME"
+        ;;
+    *)
+        echo "Unknown build architecture: $BUILD_ARCH" >&2
+        echo "Usage: $0 [debug|release] [universal|arm64|x86_64|native]" >&2
+        exit 1
+        ;;
+esac
 
 rm -rf "$APP_BUNDLE"
 mkdir -p "$APP_BUNDLE/Contents/MacOS" "$APP_BUNDLE/Contents/Resources"
@@ -46,3 +92,5 @@ codesign --force --deep --sign - "$APP_BUNDLE" >/dev/null
 
 echo "Built app bundle:"
 echo "$APP_BUNDLE"
+echo "Executable architecture:"
+/usr/bin/lipo -archs "$APP_BUNDLE/Contents/MacOS/$PRODUCT_NAME"

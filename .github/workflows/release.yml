@@ -36,6 +36,7 @@ jobs:
         run: |
           VERSION="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' Resources/Info.plist)"
           ARCHIVE_NAME="Stay-Awake-for-Agent-macOS-$VERSION.zip"
+          DMG_NAME="Stay-Awake-for-Agent-macOS-$VERSION.dmg"
 
           if [[ "${GITHUB_REF_TYPE:-}" == "tag" ]]; then
             TAG_NAME="$GITHUB_REF_NAME"
@@ -47,6 +48,7 @@ jobs:
 
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "archive_name=$ARCHIVE_NAME" >> "$GITHUB_OUTPUT"
+          echo "dmg_name=$DMG_NAME" >> "$GITHUB_OUTPUT"
           echo "tag_name=$TAG_NAME" >> "$GITHUB_OUTPUT"
 
       - name: Build release archive
@@ -56,10 +58,12 @@ jobs:
         env:
           VERSION: ${{ steps.release.outputs.version }}
           ARCHIVE_NAME: ${{ steps.release.outputs.archive_name }}
+          DMG_NAME: ${{ steps.release.outputs.dmg_name }}
         run: |
           sed \
             -e "s/{{VERSION}}/$VERSION/g" \
             -e "s/{{ARCHIVE_NAME}}/$ARCHIVE_NAME/g" \
+            -e "s/{{DMG_NAME}}/$DMG_NAME/g" \
             GITHUB_RELEASE.md > dist/release/GITHUB_RELEASE.md
 
       - name: Upload workflow artifact
@@ -94,6 +98,7 @@ jobs:
           fi
 
           gh release upload "$TAG_NAME" \
+            dist/release/*.dmg \
             dist/release/*.zip \
-            dist/release/*.sha256 \
+            dist/release/SHA256SUMS.txt \
             --clobber
