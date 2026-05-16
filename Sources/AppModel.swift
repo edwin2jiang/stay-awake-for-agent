@@ -216,8 +216,14 @@ final class AgentDutyStore: ObservableObject {
 
     func setExperimentalLidCloseMode(_ enabled: Bool) {
         guard !isActive else { return }
+        let wasEnabled = experimentalLidCloseMode
         experimentalLidCloseMode = enabled
         defaults.set(enabled, forKey: DefaultsKey.experimentalLidCloseMode)
+
+        if wasEnabled && !enabled {
+            lidCloseStatusText = "正在恢复..."
+            restoreLidCloseMode()
+        }
     }
 
     func setLowBatteryProtectionEnabled(_ enabled: Bool) {
@@ -312,17 +318,21 @@ final class AgentDutyStore: ObservableObject {
             return
         }
 
+        let wasExperimentalLidCloseMode = experimentalLidCloseMode
+
         isActive = false
         activeSessionID = UUID()
         releaseAssertion()
         stopCountdownTimer()
         endDate = nil
-        lidCloseStatusText = experimentalLidCloseMode ? "正在恢复..." : "未请求"
+        experimentalLidCloseMode = false
+        defaults.set(false, forKey: DefaultsKey.experimentalLidCloseMode)
+        lidCloseStatusText = wasExperimentalLidCloseMode ? "正在恢复..." : "未请求"
         lastError = reason
 
-        guard shouldRestoreLidCloseSleepSetting || hasManagedLidCloseSleepOverride else {
+        guard shouldRestoreLidCloseModeAfterSession || wasExperimentalLidCloseMode else {
             shouldRestoreLidCloseSleepSetting = false
-            lidCloseStatusText = experimentalLidCloseMode ? "未修改系统设置" : "未请求"
+            lidCloseStatusText = wasExperimentalLidCloseMode ? "未修改系统设置" : "未请求"
             refreshPresentation()
             return
         }
@@ -343,7 +353,7 @@ final class AgentDutyStore: ObservableObject {
             endDate = nil
         }
 
-        if shouldRestoreLidCloseSleepSetting || hasManagedLidCloseSleepOverride {
+        if shouldRestoreLidCloseModeAfterSession {
             shouldRestoreLidCloseSleepSetting = false
             restoreLidCloseModeSynchronously()
         }
@@ -551,6 +561,10 @@ final class AgentDutyStore: ObservableObject {
         defaults.bool(forKey: DefaultsKey.managedLidCloseSleepOverride)
     }
 
+    private var shouldRestoreLidCloseModeAfterSession: Bool {
+        shouldRestoreLidCloseSleepSetting || hasManagedLidCloseSleepOverride || experimentalLidCloseMode
+    }
+
     private func restoreLidCloseModeSynchronously() {
         do {
             try lidCloseController.setSleepDisabled(false)
@@ -561,15 +575,22 @@ final class AgentDutyStore: ObservableObject {
     }
 
     private func recoverLingeringLidCloseOverrideIfNeeded() {
-        guard hasManagedLidCloseSleepOverride else { return }
+        guard hasManagedLidCloseSleepOverride || !experimentalLidCloseMode else { return }
 
         do {
-            if try lidCloseController.isSleepDisabled() {
+            let hadManagedOverride = hasManagedLidCloseSleepOverride
+            let isSleepDisabled = try lidCloseController.isSleepDisabled()
+
+            guard isSleepDisabled || hadManagedOverride else {
+                return
+            }
+
+            if isSleepDisabled {
                 try lidCloseController.setSleepDisabled(false)
             }
 
             defaults.set(false, forKey: DefaultsKey.managedLidCloseSleepOverride)
-            lidCloseStatusText = "已恢复上次遗留的系统设置"
+            lidCloseStatusText = hadManagedOverride ? "已恢复上次遗留的系统设置" : "已清理盒盖睡眠设置"
         } catch {
             lidCloseStatusText = "发现上次遗留设置"
             lastError = "检测到上次会话未恢复盒盖睡眠设置：\(error.localizedDescription)"
