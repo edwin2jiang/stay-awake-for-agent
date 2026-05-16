@@ -1,6 +1,6 @@
 # Stay Awake for Agent
 
-[![中文 README](https://img.shields.io/badge/README-%E4%B8%AD%E6%96%87-blue)](README.zh-CN.md)
+[English](README.md) | [中文](README.zh-CN.md)
 
 Stay Awake for Agent is a small macOS menu bar app for long-running agent workflows. It keeps your Mac awake while automation, uploads, recordings, or remote jobs are still running, with clear controls for duration, battery protection, launch at login, and an experimental lid-close mode.
 

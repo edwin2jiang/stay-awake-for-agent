@@ -1,6 +1,6 @@
 # Stay Awake for Agent
 
-[![English README](https://img.shields.io/badge/README-English-blue)](README.md)
+[English](README.md) | [中文](README.zh-CN.md)
 
 Stay Awake for Agent 是一个为长时间 Agent 工作流准备的 macOS 菜单栏工具。它可以在自动化任务、上传、录屏、远程处理或长时间生成任务期间保持 Mac 唤醒，并提供时间计划、低电量保护、开机自启和实验性盒盖模式。
 
