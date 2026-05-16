@@ -4,7 +4,7 @@
 
 Download `{{DMG_NAME}}` from the assets below.
 
-The DMG contains a universal macOS app with Apple Silicon and Intel slices.
+This is the right download for both Apple Silicon and Intel Macs. The DMG contains a universal macOS app with `arm64` and `x86_64` slices.
 
 ### Install
 

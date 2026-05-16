@@ -24,14 +24,14 @@ The default stay-awake behavior uses Apple's public IOKit power assertion API. T
 For normal users, download the latest prebuilt archive from GitHub Releases:
 
 1. Open the repository's **Releases** page.
-2. Download `Stay-Awake-for-Agent-macOS-<version>.dmg`.
+2. Download `Stay-Awake-for-Agent-macOS-universal-<version>.dmg`.
 3. Open the DMG.
 4. Drag `Stay Awake for Agent.app` to **Applications**.
 5. Open it from Finder once so macOS can show any security prompt.
 
 If macOS says the app cannot be opened because the developer cannot be verified, open **System Settings > Privacy & Security**, scroll to the security message for Stay Awake for Agent, and choose **Open Anyway**. This is expected for unsigned local builds.
 
-The release app is built as a universal macOS binary for Apple Silicon and Intel Macs.
+Apple Silicon and Intel users download the same universal DMG. The app inside contains both `arm64` and `x86_64` slices.
 
 ## First Run
 
@@ -121,8 +121,8 @@ To test the release package locally:
 
 This creates files under `dist/release/`, including:
 
-- `Stay-Awake-for-Agent-macOS-<version>.dmg`
-- `Stay-Awake-for-Agent-macOS-<version>.zip`
+- `Stay-Awake-for-Agent-macOS-universal-<version>.dmg`
+- `Stay-Awake-for-Agent-macOS-universal-<version>.zip`
 - `SHA256SUMS.txt`
 
 To publish a real GitHub Release, push a version tag such as `v0.1.0` or run the `Release` workflow manually from GitHub Actions. The workflow creates or updates the GitHub Release, uploads the DMG, fallback zip, and checksum file, and publishes install instructions from [GITHUB_RELEASE.md](GITHUB_RELEASE.md).

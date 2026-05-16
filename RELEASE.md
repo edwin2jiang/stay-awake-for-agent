@@ -35,8 +35,8 @@ Before publishing, you can test the package locally:
 
 The release artifacts are written to `dist/release/`:
 
-- `Stay-Awake-for-Agent-macOS-<version>.dmg`
-- `Stay-Awake-for-Agent-macOS-<version>.zip`
+- `Stay-Awake-for-Agent-macOS-universal-<version>.dmg`
+- `Stay-Awake-for-Agent-macOS-universal-<version>.zip`
 - `SHA256SUMS.txt`
 
 ## Checksum
@@ -44,6 +44,6 @@ The release artifacts are written to `dist/release/`:
 Verify the download with:
 
 ```bash
-shasum -a 256 "Stay-Awake-for-Agent-macOS-<version>.zip"
+shasum -a 256 "Stay-Awake-for-Agent-macOS-universal-<version>.dmg"
 cat SHA256SUMS.txt
 ```

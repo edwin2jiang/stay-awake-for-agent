@@ -11,7 +11,7 @@ DMG_STAGING_DIR="$ROOT_DIR/dist/dmg-staging"
 
 VERSION="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$INFO_PLIST")"
 BUILD_NUMBER="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$INFO_PLIST")"
-ARCHIVE_BASENAME="Stay-Awake-for-Agent-macOS-$VERSION"
+ARCHIVE_BASENAME="Stay-Awake-for-Agent-macOS-universal-$VERSION"
 ARCHIVE_PATH="$RELEASE_DIR/$ARCHIVE_BASENAME.zip"
 DMG_PATH="$RELEASE_DIR/$ARCHIVE_BASENAME.dmg"
 CHECKSUM_PATH="$RELEASE_DIR/SHA256SUMS.txt"

@@ -35,8 +35,8 @@ jobs:
           INPUT_TAG_NAME: ${{ github.event.inputs.tag_name || '' }}
         run: |
           VERSION="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' Resources/Info.plist)"
-          ARCHIVE_NAME="Stay-Awake-for-Agent-macOS-$VERSION.zip"
-          DMG_NAME="Stay-Awake-for-Agent-macOS-$VERSION.dmg"
+          ARCHIVE_NAME="Stay-Awake-for-Agent-macOS-universal-$VERSION.zip"
+          DMG_NAME="Stay-Awake-for-Agent-macOS-universal-$VERSION.dmg"
 
           if [[ "${GITHUB_REF_TYPE:-}" == "tag" ]]; then
             TAG_NAME="$GITHUB_REF_NAME"
