@@ -42,8 +42,8 @@ build_for_triple() {
 
 case "$BUILD_ARCH" in
     universal)
-        ARM64_BIN_DIR="$(build_for_triple "arm64-apple-macosx13.0" "$ROOT_DIR/.build/arm64-release" | tail -n 1)"
-        X86_64_BIN_DIR="$(build_for_triple "x86_64-apple-macosx13.0" "$ROOT_DIR/.build/x86_64-release" | tail -n 1)"
+        ARM64_BIN_DIR="$(build_for_triple "arm64-apple-macosx13.0" "$ROOT_DIR/.build/arm64-$CONFIGURATION" | tail -n 1)"
+        X86_64_BIN_DIR="$(build_for_triple "x86_64-apple-macosx13.0" "$ROOT_DIR/.build/x86_64-$CONFIGURATION" | tail -n 1)"
         TEMP_EXECUTABLE="$DIST_DIR/$PRODUCT_NAME.universal"
         mkdir -p "$DIST_DIR"
         /usr/bin/lipo -create \
@@ -53,11 +53,11 @@ case "$BUILD_ARCH" in
         EXECUTABLE_PATH="$TEMP_EXECUTABLE"
         ;;
     arm64)
-        ARM64_BIN_DIR="$(build_for_triple "arm64-apple-macosx13.0" "$ROOT_DIR/.build/arm64-release" | tail -n 1)"
+        ARM64_BIN_DIR="$(build_for_triple "arm64-apple-macosx13.0" "$ROOT_DIR/.build/arm64-$CONFIGURATION" | tail -n 1)"
         EXECUTABLE_PATH="$ARM64_BIN_DIR/$PRODUCT_NAME"
         ;;
     x86_64)
-        X86_64_BIN_DIR="$(build_for_triple "x86_64-apple-macosx13.0" "$ROOT_DIR/.build/x86_64-release" | tail -n 1)"
+        X86_64_BIN_DIR="$(build_for_triple "x86_64-apple-macosx13.0" "$ROOT_DIR/.build/x86_64-$CONFIGURATION" | tail -n 1)"
         EXECUTABLE_PATH="$X86_64_BIN_DIR/$PRODUCT_NAME"
         ;;
     native)

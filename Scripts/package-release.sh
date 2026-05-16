@@ -16,6 +16,12 @@ ARCHIVE_PATH="$RELEASE_DIR/$ARCHIVE_BASENAME.zip"
 DMG_PATH="$RELEASE_DIR/$ARCHIVE_BASENAME.dmg"
 CHECKSUM_PATH="$RELEASE_DIR/SHA256SUMS.txt"
 
+cleanup() {
+    rm -rf "$DMG_STAGING_DIR"
+}
+
+trap cleanup EXIT
+
 "$ROOT_DIR/Scripts/build-app.sh" release universal
 
 chmod +x "$APP_BUNDLE_PATH/Contents/MacOS/StayAwakeForAgent"
@@ -28,7 +34,7 @@ mkdir -p "$RELEASE_DIR"
 cd "$ROOT_DIR/dist"
 /usr/bin/ditto -c -k --keepParent "$APP_BUNDLE_NAME.app" "$ARCHIVE_PATH"
 
-rm -rf "$DMG_STAGING_DIR"
+cleanup
 mkdir -p "$DMG_STAGING_DIR"
 cp -R "$APP_BUNDLE_PATH" "$DMG_STAGING_DIR/"
 ln -s /Applications "$DMG_STAGING_DIR/Applications"
@@ -40,7 +46,7 @@ ln -s /Applications "$DMG_STAGING_DIR/Applications"
     -format UDZO \
     "$DMG_PATH" >/dev/null
 
-rm -rf "$DMG_STAGING_DIR"
+cleanup
 
 cd "$RELEASE_DIR"
 /usr/bin/shasum -a 256 "$ARCHIVE_BASENAME.dmg" "$ARCHIVE_BASENAME.zip" > "$CHECKSUM_PATH"
