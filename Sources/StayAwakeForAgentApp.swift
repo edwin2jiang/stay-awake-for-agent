@@ -80,9 +80,10 @@ private struct AgentControlView: View {
             activationControl
             statusSection
             scheduleSection
+            lidCloseSection
             batteryProtectionSection
             launchAtLoginSection
-            lidCloseSection
+            
 
             if let lastError = store.lastError {
                 Text(lastError)
