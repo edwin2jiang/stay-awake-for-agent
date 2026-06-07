@@ -1,0 +1,14 @@
+{
+  "name": "stay-awake-for-agent-promo",
+  "private": true,
+  "scripts": {
+    "lint": "hyperframes lint",
+    "validate": "hyperframes validate",
+    "inspect": "hyperframes inspect",
+    "preview": "hyperframes preview --port 3026",
+    "render": "hyperframes render --output renders/stay-awake-for-agent-promo.mp4 --quality standard"
+  },
+  "devDependencies": {
+    "hyperframes": "0.6.16"
+  }
+}

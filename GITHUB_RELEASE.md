@@ -1,5 +1,10 @@
 ## Stay Awake for Agent {{VERSION}}
 
+### What's Changed
+
+- Added a Chinese voiceover product promo video to the README.
+- Fixed startup recovery logic for experimental lid-close mode so the app only restores `pmset disablesleep` when it previously managed that setting.
+
 ### Download
 
 Download `{{DMG_NAME}}` from the assets below.

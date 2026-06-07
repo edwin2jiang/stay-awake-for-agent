@@ -10,6 +10,14 @@ The default stay-awake behavior uses Apple's public IOKit power assertion API. T
 
 **Keywords:** macOS stay awake, Mac no sleep, prevent Mac sleep, caffeinate GUI, NoSleep for Mac, AI agent utility, coding agent helper, long-running automation, lid close sleep.
 
+## Promo Video
+
+Watch the short product video with Chinese voiceover:
+
+<video src="promo-video/renders/stay-awake-for-agent-promo-voiceover.mp4" controls width="720"></video>
+
+[Open the MP4 directly](promo-video/renders/stay-awake-for-agent-promo-voiceover.mp4)
+
 ## Features
 
 - Menu bar and regular window controls for macOS

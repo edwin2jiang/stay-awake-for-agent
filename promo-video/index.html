@@ -1,0 +1,778 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stay Awake for Agent Promo</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #080f18;
+      }
+
+      #stay-awake-agent-promo {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        color: #f6f8ef;
+        background:
+          radial-gradient(circle at 68% 18%, rgba(42, 230, 200, 0.18), rgba(42, 230, 200, 0) 24%),
+          radial-gradient(circle at 12% 88%, rgba(255, 204, 88, 0.11), rgba(255, 204, 88, 0) 23%),
+          #080f18;
+        font-family: "Noto Sans JP", sans-serif;
+        letter-spacing: 0;
+      }
+
+      .scene {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        opacity: 0;
+        transform: translateX(2200px);
+        background-color: #080f18;
+      }
+
+      .scene-content {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        padding: 120px 150px;
+        gap: 34px;
+        z-index: 3;
+      }
+
+      .eyebrow {
+        width: fit-content;
+        padding: 12px 18px;
+        border: 1px solid rgba(246, 248, 239, 0.18);
+        border-radius: 999px;
+        color: #f6f8ef;
+        background: #101d2a;
+        font-size: 24px;
+        font-weight: 650;
+      }
+
+      .title {
+        max-width: 1180px;
+        margin: 0;
+        font-size: 112px;
+        line-height: 1.04;
+        font-weight: 850;
+        letter-spacing: 0;
+      }
+
+      .title .accent {
+        color: #2ae6c8;
+        text-shadow: 0 0 28px rgba(42, 230, 200, 0.34);
+      }
+
+      .subhead {
+        max-width: 980px;
+        margin: 0;
+        color: rgba(246, 248, 239, 0.78);
+        font-size: 34px;
+        line-height: 1.42;
+        font-weight: 380;
+      }
+
+      .mono {
+        font-family: "IBM Plex Mono", "JetBrains Mono", monospace;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .asset-icon {
+        width: 250px;
+        height: 250px;
+        border-radius: 58px;
+        filter: drop-shadow(0 0 56px rgba(42, 230, 200, 0.38));
+      }
+
+      .night-grid {
+        position: absolute;
+        inset: 0;
+        opacity: 0.42;
+        background-image:
+          linear-gradient(rgba(167, 255, 240, 0.06) 1px, rgba(0, 0, 0, 0) 1px),
+          linear-gradient(90deg, rgba(167, 255, 240, 0.05) 1px, rgba(0, 0, 0, 0) 1px);
+        background-size: 80px 80px;
+        mask-image: radial-gradient(circle at 52% 45%, #000 0%, rgba(0, 0, 0, 0) 74%);
+      }
+
+      .moon {
+        position: absolute;
+        top: 92px;
+        right: 180px;
+        width: 142px;
+        height: 142px;
+        border-radius: 50%;
+        background: #f6f8ef;
+        box-shadow: 0 0 54px rgba(246, 248, 239, 0.26);
+      }
+
+      .moon::after {
+        content: "";
+        position: absolute;
+        top: -14px;
+        right: -34px;
+        width: 132px;
+        height: 132px;
+        border-radius: 50%;
+        background: #080f18;
+      }
+
+      .terminal {
+        position: absolute;
+        right: 140px;
+        bottom: 120px;
+        width: 650px;
+        padding: 28px;
+        border: 1px solid rgba(167, 255, 240, 0.2);
+        border-radius: 22px;
+        background: rgba(11, 23, 34, 0.88);
+        box-shadow: 0 34px 100px rgba(0, 0, 0, 0.42);
+      }
+
+      .terminal-line {
+        display: flex;
+        justify-content: space-between;
+        gap: 22px;
+        padding: 16px 0;
+        border-bottom: 1px solid rgba(246, 248, 239, 0.08);
+        color: rgba(246, 248, 239, 0.78);
+        font-size: 23px;
+      }
+
+      .terminal-line:last-child {
+        border-bottom: 0;
+      }
+
+      .status-ok {
+        color: #2ae6c8;
+      }
+
+      .status-warn {
+        color: #ffcc58;
+      }
+
+      .hero-photo {
+        position: absolute;
+        inset: 0;
+        opacity: 0.58;
+        background-image: linear-gradient(90deg, rgba(8, 15, 24, 0.96) 0%, rgba(8, 15, 24, 0.7) 42%, rgba(8, 15, 24, 0.3) 100%), url("./assets/hero-banner.png");
+        background-size: cover;
+        background-position: center;
+      }
+
+      .app-window {
+        position: absolute;
+        right: 120px;
+        top: 115px;
+        width: 680px;
+        min-height: 780px;
+        padding: 28px;
+        border: 1px solid rgba(167, 255, 240, 0.2);
+        border-radius: 28px;
+        background: rgba(16, 29, 42, 0.92);
+        box-shadow: 0 46px 110px rgba(0, 0, 0, 0.5);
+      }
+
+      .window-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 26px;
+      }
+
+      .traffic {
+        display: flex;
+        gap: 10px;
+      }
+
+      .dot {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+      }
+
+      .dot.red {
+        background: #ff6b5f;
+      }
+
+      .dot.yellow {
+        background: #ffcc58;
+      }
+
+      .dot.green {
+        background: #2ae6c8;
+      }
+
+      .pill {
+        width: fit-content;
+        padding: 10px 14px;
+        border-radius: 999px;
+        background: rgba(42, 230, 200, 0.14);
+        color: #a7fff0;
+        font-size: 20px;
+        font-weight: 700;
+      }
+
+      .toggle-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 28px;
+        padding: 24px;
+        border-radius: 18px;
+        background: rgba(246, 248, 239, 0.06);
+      }
+
+      .toggle-title {
+        font-size: 32px;
+        font-weight: 760;
+      }
+
+      .toggle-copy {
+        margin-top: 6px;
+        color: rgba(246, 248, 239, 0.62);
+        font-size: 22px;
+      }
+
+      .switch {
+        position: relative;
+        flex: 0 0 auto;
+        width: 110px;
+        height: 58px;
+        border-radius: 999px;
+        background: rgba(42, 230, 200, 0.25);
+        box-shadow: inset 0 0 0 2px rgba(167, 255, 240, 0.18);
+      }
+
+      .knob {
+        position: absolute;
+        top: 7px;
+        right: 7px;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: #a7fff0;
+        box-shadow: 0 0 24px rgba(42, 230, 200, 0.58);
+      }
+
+      .timer-card {
+        margin-top: 20px;
+        padding: 28px;
+        border-radius: 18px;
+        background: rgba(42, 230, 200, 0.09);
+      }
+
+      .timer {
+        color: #f6f8ef;
+        font-size: 72px;
+        font-weight: 800;
+      }
+
+      .timer-label {
+        color: rgba(246, 248, 239, 0.66);
+        font-size: 22px;
+      }
+
+      .menu-extra {
+        position: absolute;
+        right: 830px;
+        top: 148px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 16px 20px;
+        border: 1px solid rgba(167, 255, 240, 0.26);
+        border-radius: 22px;
+        background: rgba(16, 29, 42, 0.92);
+        box-shadow: 0 24px 70px rgba(0, 0, 0, 0.38);
+      }
+
+      .bolt {
+        color: #ffcc58;
+        font-size: 34px;
+      }
+
+      .choices {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 22px;
+        width: 950px;
+      }
+
+      .choice {
+        min-height: 185px;
+        padding: 28px;
+        border: 1px solid rgba(167, 255, 240, 0.18);
+        border-radius: 22px;
+        background: rgba(16, 29, 42, 0.82);
+      }
+
+      .choice-value {
+        color: #a7fff0;
+        font-size: 58px;
+        font-weight: 840;
+      }
+
+      .choice-label {
+        margin-top: 12px;
+        color: rgba(246, 248, 239, 0.68);
+        font-size: 24px;
+        line-height: 1.35;
+      }
+
+      .deadline-panel {
+        position: absolute;
+        right: 136px;
+        bottom: 132px;
+        width: 600px;
+        padding: 30px;
+        border-radius: 24px;
+        background: rgba(246, 248, 239, 0.06);
+        border: 1px solid rgba(246, 248, 239, 0.12);
+      }
+
+      .deadline-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 16px 0;
+        border-bottom: 1px solid rgba(246, 248, 239, 0.09);
+        font-size: 25px;
+      }
+
+      .deadline-row strong {
+        padding: 3px 8px;
+        border-radius: 8px;
+        color: #f6f8ef;
+        background: #101d2a;
+      }
+
+      .deadline-row:last-child {
+        border-bottom: 0;
+      }
+
+      .shield-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        align-items: center;
+        gap: 80px;
+        height: 100%;
+      }
+
+      .safeguards {
+        display: grid;
+        gap: 24px;
+      }
+
+      .safeguard {
+        display: grid;
+        grid-template-columns: 74px 1fr;
+        gap: 22px;
+        align-items: center;
+        padding: 24px;
+        border: 1px solid rgba(167, 255, 240, 0.16);
+        border-radius: 22px;
+        background: rgba(16, 29, 42, 0.84);
+      }
+
+      .safe-icon {
+        display: grid;
+        place-items: center;
+        width: 74px;
+        height: 74px;
+        border-radius: 20px;
+        background: rgba(42, 230, 200, 0.13);
+        color: #2ae6c8;
+        font-size: 36px;
+      }
+
+      .safe-title {
+        font-size: 31px;
+        font-weight: 780;
+      }
+
+      .safe-copy {
+        margin-top: 5px;
+        color: rgba(246, 248, 239, 0.66);
+        font-size: 22px;
+        line-height: 1.34;
+      }
+
+      .ring-stage {
+        position: absolute;
+        top: 226px;
+        right: 94px;
+        display: grid;
+        place-items: center;
+        width: 620px;
+        height: 620px;
+      }
+
+      .pulse-ring {
+        position: absolute;
+        width: 520px;
+        height: 520px;
+        border: 18px solid rgba(42, 230, 200, 0.92);
+        border-radius: 50%;
+        box-shadow: 0 0 62px rgba(42, 230, 200, 0.34);
+      }
+
+      .pulse-ring.thin {
+        width: 380px;
+        height: 380px;
+        border-width: 8px;
+        opacity: 0.52;
+      }
+
+      .battery {
+        position: absolute;
+        bottom: 120px;
+        right: 90px;
+        width: 236px;
+        height: 92px;
+        padding: 12px;
+        border: 5px solid #ffcc58;
+        border-radius: 18px;
+      }
+
+      .battery::after {
+        content: "";
+        position: absolute;
+        top: 24px;
+        right: -23px;
+        width: 16px;
+        height: 38px;
+        border-radius: 0 8px 8px 0;
+        background: #ffcc58;
+      }
+
+      .battery-fill {
+        width: 64%;
+        height: 100%;
+        border-radius: 9px;
+        background: #ffcc58;
+      }
+
+      .workflow {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 18px;
+        width: 100%;
+        margin-top: 10px;
+      }
+
+      .workflow-step {
+        min-height: 250px;
+        padding: 24px;
+        border: 1px solid rgba(167, 255, 240, 0.16);
+        border-radius: 20px;
+        background: rgba(16, 29, 42, 0.86);
+      }
+
+      .step-num {
+        color: #2ae6c8;
+        font-size: 24px;
+        font-weight: 800;
+      }
+
+      .step-title {
+        margin-top: 60px;
+        color: #f6f8ef;
+        font-size: 32px;
+        font-weight: 780;
+        line-height: 1.18;
+      }
+
+      .step-copy {
+        margin-top: 14px;
+        color: rgba(246, 248, 239, 0.64);
+        font-size: 21px;
+        line-height: 1.35;
+      }
+
+      .final-wrap {
+        display: grid;
+        grid-template-columns: 330px 1fr;
+        align-items: center;
+        gap: 70px;
+        width: 100%;
+      }
+
+      .cta {
+        display: flex;
+        gap: 18px;
+        margin-top: 20px;
+      }
+
+      .cta-pill {
+        padding: 18px 24px;
+        border-radius: 999px;
+        background: #2ae6c8;
+        color: #081018;
+        font-size: 25px;
+        font-weight: 820;
+      }
+
+      .cta-pill.secondary {
+        border: 1px solid rgba(167, 255, 240, 0.28);
+        background: rgba(16, 29, 42, 0.8);
+        color: #a7fff0;
+      }
+
+      .eyebrow span,
+      .cta-pill span {
+        display: inline-block;
+      }
+
+      .eyebrow span {
+        padding: 2px 6px;
+        border-radius: 6px;
+        background: #101d2a;
+      }
+
+      .cta-pill span {
+        padding: 2px 5px;
+        border-radius: 5px;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div
+      id="stay-awake-agent-promo"
+      data-composition-id="stay-awake-agent-promo"
+      data-start="0"
+      data-duration="24"
+      data-width="1920"
+      data-height="1080"
+      data-track-index="0"
+    >
+      <audio
+        id="narration"
+        data-start="0"
+        data-duration="22.151"
+        data-track-index="3"
+        src="./assets/narration.wav"
+        data-volume="0.95"
+      ></audio>
+
+      <section class="scene" id="scene-1">
+        <div class="night-grid" data-layout-ignore></div>
+        <div class="moon"></div>
+        <div class="scene-content">
+          <div class="eyebrow"><span>给长时间 AI Agent 的 macOS 防休眠工具</span></div>
+          <h1 class="title">你的 Agent 不该被<span class="accent">睡眠</span>打断</h1>
+          <p class="subhead">浏览器自动化、长时生成、远程任务、录屏上传，Mac 睡着一次，进度就可能从头再来。</p>
+        </div>
+        <div class="terminal">
+          <div class="terminal-line mono"><span>codex run --overnight</span><span class="status-ok">running</span></div>
+          <div class="terminal-line mono"><span>playwright batch</span><span class="status-ok">42%</span></div>
+          <div class="terminal-line mono"><span>system idle sleep</span><span class="status-warn">blocked?</span></div>
+        </div>
+      </section>
+
+      <section class="scene" id="scene-2">
+        <div class="hero-photo" data-layout-ignore></div>
+        <div class="menu-extra">
+          <span class="bolt">⚡</span>
+          <span class="mono" style="font-size: 27px; color: #a7fff0;">∞</span>
+          <span style="font-size: 24px;">菜单栏值守</span>
+        </div>
+        <div class="scene-content">
+          <div class="eyebrow"><span>一键开启</span></div>
+          <h2 class="title">像 caffeinate 一样可靠，像菜单栏 App 一样顺手</h2>
+          <p class="subhead">默认无限运行。需要时打开窗口，不需要时留在菜单栏，轻轻占位，持续保持系统唤醒。</p>
+        </div>
+        <div class="app-window">
+          <div class="window-bar">
+            <div class="traffic"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
+            <div class="pill">运行中</div>
+          </div>
+          <div class="toggle-row">
+            <div>
+              <div class="toggle-title">防休眠</div>
+              <div class="toggle-copy">无限运行，直到手动关闭</div>
+            </div>
+            <div class="switch"><div class="knob"></div></div>
+          </div>
+          <div class="timer-card">
+            <div class="timer mono">∞</div>
+            <div class="timer-label">Agent 持续在线工作</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="scene" id="scene-3">
+        <div class="night-grid" data-layout-ignore></div>
+        <div class="scene-content">
+          <div class="eyebrow"><span>时间计划</span></div>
+          <h2 class="title">从 15 分钟到整夜，按任务节奏保持唤醒</h2>
+          <p class="subhead">常用时长、自定义分钟或小时、固定截止日期。任务怎么跑，防休眠就怎么陪。</p>
+          <div class="choices">
+            <div class="choice">
+              <div class="choice-value mono">15</div>
+              <div class="choice-label">分钟快速处理一次上传或脚本</div>
+            </div>
+            <div class="choice">
+              <div class="choice-value mono">6h</div>
+              <div class="choice-label">长批处理、录屏导出、远程作业</div>
+            </div>
+            <div class="choice">
+              <div class="choice-value mono">∞</div>
+              <div class="choice-label">默认无限，等你回来亲自关闭</div>
+            </div>
+          </div>
+        </div>
+        <div class="deadline-panel">
+          <div class="deadline-row"><span>模式</span><strong>截止日期</strong></div>
+          <div class="deadline-row"><span>结束时间</span><strong class="mono">明天 10:00</strong></div>
+          <div class="deadline-row"><span>状态</span><strong style="color: #2ae6c8;">NoIdleSleep</strong></div>
+        </div>
+      </section>
+
+      <section class="scene" id="scene-4">
+        <div class="scene-content shield-layout">
+          <div>
+            <div class="eyebrow"><span>稳，也要有边界</span></div>
+            <h2 class="title">低电量保护，让夜班不把电池拖空</h2>
+            <p class="subhead">通过 Apple IOKit 电源断言阻止空闲睡眠；可选合盖模式面向高级用户，并在会话结束后恢复。</p>
+          </div>
+          <div class="safeguards">
+            <div class="safeguard">
+              <div class="safe-icon">%</div>
+              <div><div class="safe-title">低电量阈值</div><div class="safe-copy">低于阈值自动停止，给 Mac 留余量。</div></div>
+            </div>
+            <div class="safeguard">
+              <div class="safe-icon">∞</div>
+              <div><div class="safe-title">实时倒计时</div><div class="safe-copy">无限、预设、自定义、截止时间都有清晰状态。</div></div>
+            </div>
+            <div class="safeguard">
+              <div class="safe-icon">⌂</div>
+              <div><div class="safe-title">登录后可自动启动</div><div class="safe-copy">长期使用时，开机就准备好。</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="ring-stage">
+          <div class="pulse-ring"></div>
+          <div class="pulse-ring thin"></div>
+          <img class="asset-icon" src="./assets/app-icon.png" alt="" />
+          <div class="battery"><div class="battery-fill"></div></div>
+        </div>
+      </section>
+
+      <section class="scene" id="scene-5">
+        <div class="hero-photo" data-layout-ignore></div>
+        <div class="scene-content">
+          <div class="eyebrow"><span>适合这些不能半路睡掉的工作流</span></div>
+          <h2 class="title">让 Mac 安静地撑住你的长任务</h2>
+          <div class="workflow">
+            <div class="workflow-step"><div class="step-num mono">01</div><div class="step-title">Coding Agent</div><div class="step-copy">Codex、Claude Code、Cursor 的长时间修改与测试。</div></div>
+            <div class="workflow-step"><div class="step-num mono">02</div><div class="step-title">浏览器自动化</div><div class="step-copy">Playwright 批量任务、网页采集、登录态流程。</div></div>
+            <div class="workflow-step"><div class="step-num mono">03</div><div class="step-title">上传与录屏</div><div class="step-copy">Loom、导出、远程处理，不再被系统睡眠切断。</div></div>
+            <div class="workflow-step"><div class="step-num mono">04</div><div class="step-title">通宵值守</div><div class="step-copy">任务继续跑，人可以离开。</div></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="scene" id="scene-6">
+        <div class="night-grid" data-layout-ignore></div>
+        <div class="scene-content">
+          <div class="final-wrap">
+            <img class="asset-icon final-icon" src="./assets/app-icon-final.png" alt="" />
+            <div>
+              <div class="eyebrow"><span>Stay Awake for Agent</span></div>
+              <h2 class="title">给长任务一个稳定夜班</h2>
+              <p class="subhead">面向 AI Agent 工作流的 macOS 防休眠工具。下载 universal DMG，菜单栏一键开始。</p>
+              <div class="cta">
+                <div class="cta-pill"><span>下载 macOS 版本</span></div>
+                <div class="cta-pill secondary"><span>GitHub Releases</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      function enterScene(selector, time) {
+        tl.set(selector, { opacity: 1, x: 0 }, time);
+      }
+
+      function smoothTransition(time, prevScene, nextScene) {
+        tl.set(nextScene, { opacity: 0, x: 0 }, time);
+        tl.to(nextScene, { opacity: 1, duration: 0.82, ease: "sine.inOut" }, time);
+        tl.set(prevScene, { opacity: 0, x: -2200 }, time + 0.84);
+      }
+
+      enterScene("#scene-1", 0);
+      tl.from("#scene-1 .eyebrow", { y: 34, opacity: 0, duration: 0.56, ease: "power2.out" }, 0.18);
+      tl.from("#scene-1 .title", { x: -64, opacity: 0, duration: 0.72, ease: "expo.out" }, 0.36);
+      tl.from("#scene-1 .subhead", { y: 44, opacity: 0, duration: 0.62, ease: "back.out(1.2)" }, 0.66);
+      tl.from("#scene-1 .moon", { scale: 0.72, opacity: 0, duration: 0.7, ease: "sine.out" }, 0.26);
+      tl.from("#scene-1 .terminal", { x: 76, opacity: 0, duration: 0.68, ease: "power4.out" }, 0.86);
+      tl.from("#scene-1 .terminal-line", { y: 20, opacity: 0, duration: 0.36, stagger: 0.12, ease: "power1.out" }, 1.08);
+
+      smoothTransition(3.55, "#scene-1", "#scene-2");
+      tl.from("#scene-2 .menu-extra", { y: -46, opacity: 0, duration: 0.5, ease: "back.out(1.6)" }, 4.05);
+      tl.from("#scene-2 .eyebrow", { x: -44, opacity: 0, duration: 0.46, ease: "power2.out" }, 4.16);
+      tl.from("#scene-2 .title", { y: 54, opacity: 0, duration: 0.62, ease: "expo.out" }, 4.34);
+      tl.from("#scene-2 .subhead", { y: 34, opacity: 0, duration: 0.48, ease: "sine.out" }, 4.78);
+      tl.from("#scene-2 .app-window", { x: 100, scale: 0.96, opacity: 0, duration: 0.68, ease: "power4.out" }, 4.42);
+      tl.from("#scene-2 .knob", { x: -52, duration: 0.42, ease: "back.out(2.2)" }, 5.2);
+
+      smoothTransition(7.35, "#scene-2", "#scene-3");
+      tl.from("#scene-3 .eyebrow", { y: 36, opacity: 0, duration: 0.46, ease: "power2.out" }, 7.82);
+      tl.from("#scene-3 .title", { x: -58, opacity: 0, duration: 0.62, ease: "expo.out" }, 8.0);
+      tl.from("#scene-3 .subhead", { y: 40, opacity: 0, duration: 0.52, ease: "sine.out" }, 8.36);
+      tl.from("#scene-3 .choice", { y: 72, opacity: 0, scale: 0.96, duration: 0.54, stagger: 0.13, ease: "back.out(1.25)" }, 8.72);
+      tl.from("#scene-3 .deadline-panel", { x: 72, opacity: 0, duration: 0.58, ease: "power3.out" }, 9.16);
+
+      smoothTransition(11.55, "#scene-3", "#scene-4");
+      tl.from("#scene-4 .eyebrow", { y: -32, opacity: 0, duration: 0.48, ease: "power2.out" }, 12.08);
+      tl.from("#scene-4 .title", { y: 56, opacity: 0, duration: 0.66, ease: "expo.out" }, 12.22);
+      tl.from("#scene-4 .subhead", { x: -42, opacity: 0, duration: 0.52, ease: "sine.out" }, 12.62);
+      tl.from("#scene-4 .safeguard", { x: 64, opacity: 0, duration: 0.52, stagger: 0.14, ease: "back.out(1.3)" }, 12.68);
+      tl.from("#scene-4 .pulse-ring", { scale: 0.72, opacity: 0, duration: 0.7, stagger: 0.12, ease: "power4.out" }, 12.42);
+      tl.from("#scene-4 .asset-icon", { scale: 0.64, rotation: -6, opacity: 0, duration: 0.62, ease: "back.out(1.7)" }, 12.78);
+      tl.from("#scene-4 .battery", { y: 48, opacity: 0, duration: 0.5, ease: "power3.out" }, 13.24);
+      tl.to("#scene-4 .pulse-ring", { scale: 1.08, opacity: 0.36, duration: 1.4, repeat: 2, yoyo: true, ease: "sine.inOut" }, 13.4);
+
+      smoothTransition(15.75, "#scene-4", "#scene-5");
+      tl.from("#scene-5 .eyebrow", { x: -38, opacity: 0, duration: 0.44, ease: "power2.out" }, 16.18);
+      tl.from("#scene-5 .title", { y: 48, opacity: 0, duration: 0.62, ease: "expo.out" }, 16.36);
+      tl.from("#scene-5 .workflow-step", { y: 80, opacity: 0, rotation: 1.5, duration: 0.58, stagger: 0.12, ease: "back.out(1.18)" }, 16.92);
+      tl.from("#scene-5 .step-copy", { opacity: 0, y: 18, duration: 0.38, stagger: 0.1, ease: "sine.out" }, 17.32);
+
+      smoothTransition(19.75, "#scene-5", "#scene-6");
+      tl.from("#scene-6 .final-icon", { scale: 0.58, rotation: -10, opacity: 0, duration: 0.72, ease: "back.out(1.8)" }, 20.28);
+      tl.from("#scene-6 .eyebrow", { y: 32, opacity: 0, duration: 0.46, ease: "power2.out" }, 20.48);
+      tl.from("#scene-6 .title", { x: 58, opacity: 0, duration: 0.62, ease: "expo.out" }, 20.66);
+      tl.from("#scene-6 .subhead", { y: 36, opacity: 0, duration: 0.52, ease: "sine.out" }, 21.04);
+      tl.from("#scene-6 .cta-pill", { y: 38, scale: 0.96, duration: 0.42, stagger: 0.1, ease: "back.out(1.35)" }, 21.38);
+      tl.to("#scene-6", { opacity: 0, duration: 0.7, ease: "sine.inOut" }, 23.1);
+
+      window.__timelines["stay-awake-agent-promo"] = tl;
+    </script>
+  </body>
+</html>

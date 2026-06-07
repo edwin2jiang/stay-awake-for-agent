@@ -575,7 +575,7 @@ final class AgentDutyStore: ObservableObject {
     }
 
     private func recoverLingeringLidCloseOverrideIfNeeded() {
-        guard hasManagedLidCloseSleepOverride || !experimentalLidCloseMode else { return }
+        guard hasManagedLidCloseSleepOverride || experimentalLidCloseMode else { return }
 
         do {
             let hadManagedOverride = hasManagedLidCloseSleepOverride
