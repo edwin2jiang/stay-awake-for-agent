@@ -16,8 +16,6 @@ Stay Awake for Agent 是一个面向长时间 AI Agent 工作流的 macOS 防休
 
 <video src="promo-video/renders/stay-awake-for-agent-promo-voiceover.mp4" controls width="720"></video>
 
-[直接打开 MP4](promo-video/renders/stay-awake-for-agent-promo-voiceover.mp4)
-
 ## 功能
 
 - macOS 常规窗口和菜单栏快速入口
