@@ -98,9 +98,15 @@ final class AgentDutyStore: ObservableObject {
     @Published private(set) var launchAtLoginEnabled = false
     @Published private(set) var launchAtLoginStatusText = "未启用"
     @Published private(set) var batteryStatusText = "正在读取电量状态"
+    @Published private(set) var updateStatusText = "正在检查更新"
+    @Published private(set) var updateDetailText = "当前版本：--"
+    @Published private(set) var canDownloadUpdate = false
+    @Published private(set) var isCheckingForUpdates = false
+    @Published private(set) var isDownloadingUpdate = false
 
     private let defaults: UserDefaults
     private let lidCloseController = LidCloseController()
+    private let updateController = UpdateController()
     private let launchAtLoginController: LaunchAtLoginController?
 
     private var assertionID: IOPMAssertionID = 0
@@ -110,6 +116,7 @@ final class AgentDutyStore: ObservableObject {
     private var shouldRestoreLidCloseSleepSetting = false
     private var activeSessionID = UUID()
     private var currentBatterySnapshot = BatterySnapshot(percentage: nil, isCharging: false, isOnBattery: false, isAvailable: false)
+    private var availableUpdate: AppUpdateInfo?
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
@@ -144,6 +151,8 @@ final class AgentDutyStore: ObservableObject {
         experimentalLidCloseMode = false
         defaults.set(false, forKey: DefaultsKey.experimentalLidCloseMode)
         refreshSystemPowerStatus()
+        refreshUpdatePresentation()
+        checkForUpdates(silent: true)
         refreshPresentation()
         startBatteryTimer()
     }
@@ -284,6 +293,66 @@ final class AgentDutyStore: ObservableObject {
 
     func openLoginItemsSettings() {
         launchAtLoginController?.openSystemSettings()
+    }
+
+    func checkForUpdates(silent: Bool = false) {
+        guard !isCheckingForUpdates else { return }
+
+        isCheckingForUpdates = true
+        if !silent {
+            updateStatusText = "正在检查更新"
+            updateDetailText = "正在连接 GitHub..."
+        }
+
+        Task {
+            do {
+                let result = try await updateController.checkForUpdate()
+                availableUpdate = result.update
+                canDownloadUpdate = result.update != nil
+
+                if let update = result.update {
+                    updateStatusText = "发现新版 \(update.version)"
+                    updateDetailText = "点击下载后会保存到 Downloads，并自动打开安装包。"
+                } else {
+                    updateStatusText = "已是最新版本"
+                    updateDetailText = "当前版本：\(updateController.currentVersion)"
+                }
+
+                isCheckingForUpdates = false
+            } catch {
+                if !silent {
+                    updateStatusText = "检查失败"
+                    updateDetailText = "暂时无法连接 GitHub，请稍后再试。"
+                } else {
+                    refreshUpdatePresentation()
+                }
+
+                canDownloadUpdate = false
+                isCheckingForUpdates = false
+            }
+        }
+    }
+
+    func downloadLatestUpdate() {
+        guard let availableUpdate, !isDownloadingUpdate else { return }
+
+        isDownloadingUpdate = true
+        updateStatusText = "正在下载 \(availableUpdate.version)"
+        updateDetailText = "下载完成后会自动打开安装包。"
+
+        Task {
+            do {
+                let fileURL = try await updateController.download(availableUpdate)
+                updateController.openDownloadedUpdate(at: fileURL)
+                updateStatusText = "已下载新版 \(availableUpdate.version)"
+                updateDetailText = "安装包已打开。把 app 拖到 Applications 完成更新。"
+                isDownloadingUpdate = false
+            } catch {
+                updateStatusText = "下载失败"
+                updateDetailText = "请检查网络后重试。"
+                isDownloadingUpdate = false
+            }
+        }
     }
 
     func refreshSystemPowerStatus() {
@@ -817,6 +886,12 @@ final class AgentDutyStore: ObservableObject {
         @unknown default:
             launchAtLoginStatusText = "状态未知"
         }
+    }
+
+    private func refreshUpdatePresentation() {
+        updateStatusText = "当前版本 \(updateController.currentVersion)"
+        updateDetailText = "启动后会自动检查 GitHub Release，也可以手动检查。"
+        canDownloadUpdate = false
     }
 
     private static func defaultDeadlineDate() -> Date {

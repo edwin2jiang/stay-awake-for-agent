@@ -2,10 +2,9 @@
 
 ### What's Changed
 
-- Added a clearer lid-close status panel with plain-language system state, manual refresh, and one-click restore for stuck no-sleep settings.
-- Made experimental lid-close mode follow the active stay-awake session so it no longer appears enabled while the main session is off.
-- Reworked the hero banner image with a calmer, lower-distraction night-work visual that keeps text readable.
-- Fixed parsing of macOS `pmset` output so `SleepDisabled` is detected correctly when the system uses tab-separated output.
+- Added a built-in software update panel that checks the latest GitHub Release.
+- Added one-click download for the latest universal DMG, saved to Downloads and opened automatically.
+- This is a test update release so users can verify the update-check flow from inside the app.
 
 ### Download
 

@@ -77,12 +77,15 @@ private struct AgentControlView: View {
             if presentation == .window {
                 heroSection
             }
-            activationControl
-            statusSection
-            scheduleSection
-            lidCloseSection
-            batteryProtectionSection
-            launchAtLoginSection
+            Group {
+                activationControl
+                statusSection
+                scheduleSection
+                lidCloseSection
+                batteryProtectionSection
+                launchAtLoginSection
+                updateSection
+            }
             
 
             if let lastError = store.lastError {
@@ -358,6 +361,37 @@ private struct AgentControlView: View {
                 }
                 .buttonStyle(.link)
                 .font(.caption)
+            }
+        }
+    }
+
+    private var updateSection: some View {
+        SectionCard(title: "软件更新", detail: "从 GitHub Release 获取最新安装包。") {
+            metricRow(label: "版本状态", value: store.updateStatusText)
+
+            Text(store.updateDetailText)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            HStack(spacing: 10) {
+                Button {
+                    store.checkForUpdates()
+                } label: {
+                    Label(store.isCheckingForUpdates ? "检查中" : "检查更新", systemImage: "arrow.clockwise")
+                }
+                .buttonStyle(.bordered)
+                .disabled(store.isCheckingForUpdates || store.isDownloadingUpdate)
+
+                Button {
+                    store.downloadLatestUpdate()
+                } label: {
+                    Label(store.isDownloadingUpdate ? "下载中" : "下载新版", systemImage: "arrow.down.circle")
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(!store.canDownloadUpdate || store.isCheckingForUpdates || store.isDownloadingUpdate)
+
+                Spacer()
             }
         }
     }
