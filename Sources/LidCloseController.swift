@@ -15,15 +15,27 @@ struct CommandFailure: LocalizedError {
     }
 }
 
+struct PowerSettingsSnapshot {
+    let sleepDisabled: Bool?
+    let idleSleepMinutes: Int?
+    let capturedAt: Date
+}
+
 final class LidCloseController {
     func isSleepDisabled() throws -> Bool {
         let output = try run(executable: "/usr/bin/pmset", arguments: ["-g"])
-        return output
-            .split(separator: "\n")
-            .contains { line in
-                let normalized = line.replacingOccurrences(of: "\t", with: " ")
-                return normalized.contains("SleepDisabled") && normalized.contains("1")
-            }
+        return Self.parseIntSetting("SleepDisabled", in: output) == 1
+    }
+
+    func readPowerSettingsSnapshot() throws -> PowerSettingsSnapshot {
+        let settingsOutput = try run(executable: "/usr/bin/pmset", arguments: ["-g"])
+        let sleepDisabledValue = Self.parseIntSetting("SleepDisabled", in: settingsOutput)
+
+        return PowerSettingsSnapshot(
+            sleepDisabled: sleepDisabledValue.map { $0 == 1 },
+            idleSleepMinutes: Self.parseIntSetting("sleep", in: settingsOutput),
+            capturedAt: Date()
+        )
     }
 
     func setSleepDisabled(_ disabled: Bool) throws {
@@ -60,4 +72,19 @@ final class LidCloseController {
 
         return combinedOutput
     }
+
+    private static func parseIntSetting(_ key: String, in output: String) -> Int? {
+        for line in output.split(separator: "\n") {
+            let parts = String(line)
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+                .components(separatedBy: .whitespaces)
+                .filter { !$0.isEmpty }
+
+            guard parts.count >= 2, parts[0] == key else { continue }
+            return Int(parts[1])
+        }
+
+        return nil
+    }
+
 }

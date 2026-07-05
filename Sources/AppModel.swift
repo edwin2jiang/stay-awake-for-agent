@@ -89,7 +89,12 @@ final class AgentDutyStore: ObservableObject {
     @Published private(set) var subtitleText = "默认：无限运行，直到你手动关闭"
     @Published private(set) var statusHintText = "开启后会持续保持系统唤醒"
     @Published private(set) var lastError: String?
-    @Published private(set) var lidCloseStatusText = "未请求"
+    @Published private(set) var lidCloseStatusText = "未开启"
+    @Published private(set) var systemPowerStatusText = "正在读取系统状态"
+    @Published private(set) var systemPowerStatusDetailText = "正在检查合盖睡眠设置"
+    @Published private(set) var systemPowerStatusUpdatedText = ""
+    @Published private(set) var canRestoreSystemSleep = false
+    @Published private(set) var isRefreshingSystemPowerStatus = false
     @Published private(set) var launchAtLoginEnabled = false
     @Published private(set) var launchAtLoginStatusText = "未启用"
     @Published private(set) var batteryStatusText = "正在读取电量状态"
@@ -136,6 +141,9 @@ final class AgentDutyStore: ObservableObject {
         refreshLaunchAtLoginStatus()
         refreshBatterySnapshot()
         recoverLingeringLidCloseOverrideIfNeeded()
+        experimentalLidCloseMode = false
+        defaults.set(false, forKey: DefaultsKey.experimentalLidCloseMode)
+        refreshSystemPowerStatus()
         refreshPresentation()
         startBatteryTimer()
     }
@@ -215,14 +223,25 @@ final class AgentDutyStore: ObservableObject {
     }
 
     func setExperimentalLidCloseMode(_ enabled: Bool) {
-        guard !isActive else { return }
+        guard isActive else {
+            experimentalLidCloseMode = false
+            defaults.set(false, forKey: DefaultsKey.experimentalLidCloseMode)
+            refreshLidCloseStatusText()
+            return
+        }
+
         let wasEnabled = experimentalLidCloseMode
         experimentalLidCloseMode = enabled
         defaults.set(enabled, forKey: DefaultsKey.experimentalLidCloseMode)
 
-        if wasEnabled && !enabled {
+        if enabled && !wasEnabled {
+            lidCloseStatusText = "请求中..."
+            requestLidCloseMode(for: activeSessionID)
+        } else if wasEnabled && !enabled {
             lidCloseStatusText = "正在恢复..."
             restoreLidCloseMode()
+        } else {
+            refreshLidCloseStatusText()
         }
     }
 
@@ -267,6 +286,64 @@ final class AgentDutyStore: ObservableObject {
         launchAtLoginController?.openSystemSettings()
     }
 
+    func refreshSystemPowerStatus() {
+        guard !isRefreshingSystemPowerStatus else { return }
+
+        isRefreshingSystemPowerStatus = true
+        systemPowerStatusUpdatedText = "检查中..."
+
+        Task.detached { [lidCloseController] in
+            do {
+                let snapshot = try lidCloseController.readPowerSettingsSnapshot()
+                await MainActor.run {
+                    self.applySystemPowerSnapshot(snapshot)
+                    self.isRefreshingSystemPowerStatus = false
+                }
+            } catch {
+                await MainActor.run {
+                    self.systemPowerStatusText = "读取失败"
+                    self.systemPowerStatusDetailText = "暂时没读到系统设置，请稍后再试。"
+                    self.systemPowerStatusUpdatedText = ""
+                    self.canRestoreSystemSleep = false
+                    self.isRefreshingSystemPowerStatus = false
+                }
+            }
+        }
+    }
+
+    func restoreSystemSleepNow() {
+        guard !isRefreshingSystemPowerStatus else { return }
+
+        isRefreshingSystemPowerStatus = true
+        systemPowerStatusText = "正在恢复合盖睡眠"
+        systemPowerStatusDetailText = "macOS 会弹出管理员授权。"
+        systemPowerStatusUpdatedText = ""
+
+        Task.detached { [lidCloseController] in
+            do {
+                try lidCloseController.setSleepDisabled(false)
+                UserDefaults.standard.set(false, forKey: DefaultsKey.managedLidCloseSleepOverride)
+                let snapshot = try lidCloseController.readPowerSettingsSnapshot()
+
+                await MainActor.run {
+                    self.shouldRestoreLidCloseSleepSetting = false
+                    self.refreshLidCloseStatusText()
+                    self.applySystemPowerSnapshot(snapshot)
+                    self.isRefreshingSystemPowerStatus = false
+                    self.lastError = nil
+                }
+            } catch {
+                await MainActor.run {
+                    self.systemPowerStatusText = "恢复失败"
+                    self.systemPowerStatusDetailText = "没有完成恢复，请确认管理员授权后再试。"
+                    self.systemPowerStatusUpdatedText = ""
+                    self.isRefreshingSystemPowerStatus = false
+                    self.lastError = "未能恢复盒盖睡眠设置：\(error.localizedDescription)"
+                }
+            }
+        }
+    }
+
     func startSession() {
         guard !isActive else { return }
 
@@ -300,10 +377,8 @@ final class AgentDutyStore: ObservableObject {
 
             refreshPresentation()
 
-            lidCloseStatusText = experimentalLidCloseMode ? "请求中..." : "未请求"
-
-            guard experimentalLidCloseMode else { return }
-            requestLidCloseMode(for: activeSessionID)
+            refreshLidCloseStatusText()
+            refreshSystemPowerStatus()
         } catch {
             lastError = error.localizedDescription
         }
@@ -327,13 +402,14 @@ final class AgentDutyStore: ObservableObject {
         endDate = nil
         experimentalLidCloseMode = false
         defaults.set(false, forKey: DefaultsKey.experimentalLidCloseMode)
-        lidCloseStatusText = wasExperimentalLidCloseMode ? "正在恢复..." : "未请求"
+        lidCloseStatusText = wasExperimentalLidCloseMode ? "正在恢复..." : "未开启"
         lastError = reason
 
         guard shouldRestoreLidCloseModeAfterSession || wasExperimentalLidCloseMode else {
             shouldRestoreLidCloseSleepSetting = false
-            lidCloseStatusText = wasExperimentalLidCloseMode ? "未修改系统设置" : "未请求"
+            refreshLidCloseStatusText()
             refreshPresentation()
+            refreshSystemPowerStatus()
             return
         }
 
@@ -399,6 +475,7 @@ final class AgentDutyStore: ObservableObject {
             Task { @MainActor [weak self] in
                 self?.refreshBatterySnapshot()
                 self?.evaluateBatteryProtection()
+                self?.refreshSystemPowerStatus()
             }
         }
     }
@@ -512,7 +589,8 @@ final class AgentDutyStore: ObservableObject {
                         return shouldRestoreIfSessionEnded
                     }
                     self.shouldRestoreLidCloseSleepSetting = !wasAlreadyDisabled
-                    self.lidCloseStatusText = wasAlreadyDisabled ? "系统已关闭盒盖睡眠" : "已启用实验模式"
+                    self.refreshLidCloseStatusText(systemSleepAlreadyDisabled: wasAlreadyDisabled)
+                    self.refreshSystemPowerStatus()
                     return false
                 }
 
@@ -523,12 +601,15 @@ final class AgentDutyStore: ObservableObject {
 
                 await MainActor.run {
                     if !self.isActive {
-                        self.lidCloseStatusText = "已恢复默认行为"
+                        self.refreshLidCloseStatusText()
                     }
+                    self.refreshSystemPowerStatus()
                 }
             } catch {
                 await MainActor.run {
                     guard self.isActive, self.activeSessionID == sessionID else { return }
+                    self.experimentalLidCloseMode = false
+                    self.defaults.set(false, forKey: DefaultsKey.experimentalLidCloseMode)
                     self.lidCloseStatusText = "请求失败"
                     self.lastError = "盒盖模式未启用：\(error.localizedDescription)"
                 }
@@ -542,16 +623,13 @@ final class AgentDutyStore: ObservableObject {
                 try lidCloseController.setSleepDisabled(false)
                 UserDefaults.standard.set(false, forKey: DefaultsKey.managedLidCloseSleepOverride)
                 await MainActor.run {
-                    if !self.isActive {
-                        self.lidCloseStatusText = "已恢复默认行为"
-                    }
+                    self.refreshLidCloseStatusText()
+                    self.refreshSystemPowerStatus()
                 }
             } catch {
                 await MainActor.run {
-                    if !self.isActive {
-                        self.lidCloseStatusText = "恢复失败"
-                        self.lastError = "未能恢复盒盖睡眠设置：\(error.localizedDescription)"
-                    }
+                    self.lidCloseStatusText = "恢复失败"
+                    self.lastError = "未能恢复盒盖睡眠设置：\(error.localizedDescription)"
                 }
             }
         }
@@ -590,11 +668,53 @@ final class AgentDutyStore: ObservableObject {
             }
 
             defaults.set(false, forKey: DefaultsKey.managedLidCloseSleepOverride)
-            lidCloseStatusText = hadManagedOverride ? "已恢复上次遗留的系统设置" : "已清理盒盖睡眠设置"
+            refreshLidCloseStatusText()
         } catch {
             lidCloseStatusText = "发现上次遗留设置"
             lastError = "检测到上次会话未恢复盒盖睡眠设置：\(error.localizedDescription)"
         }
+    }
+
+    private func applySystemPowerSnapshot(_ snapshot: PowerSettingsSnapshot) {
+        switch snapshot.sleepDisabled {
+        case .some(true):
+            systemPowerStatusText = "合盖不睡眠已生效"
+            systemPowerStatusDetailText = "现在合盖可能不会睡眠。任务结束后会尝试恢复，也可以手动恢复。"
+            canRestoreSystemSleep = true
+        case .some(false):
+            systemPowerStatusText = "合盖会正常睡眠"
+            systemPowerStatusDetailText = "未检测到合盖不睡眠设置。"
+            canRestoreSystemSleep = false
+        case .none:
+            if snapshot.idleSleepMinutes == 0 {
+                systemPowerStatusText = "自动睡眠已关闭"
+                systemPowerStatusDetailText = "未读到合盖开关，但系统当前不会自动睡眠。"
+            } else {
+                systemPowerStatusText = "未读到合盖设置"
+                systemPowerStatusDetailText = "没有读到系统里的合盖睡眠开关。"
+            }
+            canRestoreSystemSleep = false
+        }
+
+        if snapshot.sleepDisabled != true, snapshot.idleSleepMinutes == 0 {
+            systemPowerStatusDetailText = "合盖睡眠未被禁用，但自动睡眠当前是关闭的。"
+        }
+
+        systemPowerStatusUpdatedText = "检查于 \(Self.statusTimeFormatter.string(from: snapshot.capturedAt))"
+    }
+
+    private func refreshLidCloseStatusText(systemSleepAlreadyDisabled: Bool = false) {
+        guard isActive else {
+            lidCloseStatusText = "未开启"
+            return
+        }
+
+        guard experimentalLidCloseMode else {
+            lidCloseStatusText = "未开启"
+            return
+        }
+
+        lidCloseStatusText = systemSleepAlreadyDisabled ? "已开启（原本已生效）" : "已开启"
     }
 
     private func refreshBatterySnapshot() {
@@ -707,6 +827,12 @@ final class AgentDutyStore: ObservableObject {
             matchingPolicy: .nextTime
         ) ?? Date().addingTimeInterval(12 * 3600)
     }
+
+    private static let statusTimeFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm:ss"
+        return formatter
+    }()
 }
 
 private enum DefaultsKey {

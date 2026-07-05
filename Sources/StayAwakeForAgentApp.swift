@@ -365,16 +365,48 @@ private struct AgentControlView: View {
     private var lidCloseSection: some View {
         SectionCard {
             settingHeader(
-                title: "实验性盒盖模式",
-                detail: "需要管理员授权；依赖系统行为，不保证所有机型都稳定。",
+                title: "合盖不睡眠（实验）",
+                detail: "让 MacBook 合盖后也尽量继续运行；需要管理员授权。",
                 toggle: Binding(
                     get: { store.experimentalLidCloseMode },
                     set: { store.setExperimentalLidCloseMode($0) }
                 ),
-                disabled: store.isActive
+                disabled: !store.isActive
             )
 
-            metricRow(label: "盒盖状态", value: store.lidCloseStatusText)
+            metricRow(label: "本次会话", value: store.lidCloseStatusText)
+            metricRow(label: "系统设置", value: store.systemPowerStatusText)
+
+            Text(store.systemPowerStatusDetailText)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            HStack(spacing: 10) {
+                Button {
+                    store.refreshSystemPowerStatus()
+                } label: {
+                    Label(store.isRefreshingSystemPowerStatus ? "检查中" : "重新检查", systemImage: "arrow.clockwise")
+                }
+                .buttonStyle(.bordered)
+                .disabled(store.isRefreshingSystemPowerStatus)
+
+                Button(role: .destructive) {
+                    store.restoreSystemSleepNow()
+                } label: {
+                    Label("恢复合盖睡眠", systemImage: "bed.double")
+                }
+                .buttonStyle(.bordered)
+                .disabled(store.isRefreshingSystemPowerStatus || !store.canRestoreSystemSleep)
+
+                Spacer()
+            }
+
+            if !store.systemPowerStatusUpdatedText.isEmpty {
+                Text(store.systemPowerStatusUpdatedText)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
         }
     }
 
